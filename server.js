@@ -36,6 +36,18 @@ app.get('/',(req,res)=>{
     
 
 })
+app.get('/job_listing', (req, res) => {
+    postgres.select('*').from('job_listing').orderBy('order_index')
+      .then(data => {
+        res.json(data);
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(400).json('Error getting job listings');
+      });
+  });
+  
+  
 app.get('/profile/:id',(req,res)=>{
     const {id}=req.params ; 
 
@@ -121,7 +133,31 @@ app.post('/job_listing', (req, res) => {
       .then(data => res.json(data[0]))
       .catch(err => res.status(400).json('Unable to create job listing'));
   });
+
+
+  app.post('/update_order_numbers', (req, res) => {
+    const updatedOrderNumbers = req.body;
+  
+    postgres.transaction((trx) => {
+      const queries = updatedOrderNumbers.map(({ id, order_index }) =>
+        trx('job_listing').where('id', id).update('order_index', order_index)
+      );
+  
+      Promise.all(queries)
+        .then(() => {
+          trx.commit();
+          res.json({ success: true });
+        })
+        .catch((err) => {
+          trx.rollback();
+          console.error(err);
+          res.status(500).json({ error: 'Unable to update order numbers' });
+        });
+    });
+  });
   
 app.listen(3001, ()=>{
     console.log("server is working ");
 }); 
+
+
