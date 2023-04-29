@@ -18,7 +18,14 @@ const postgres = knex({
 
   
 
- 
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    next();
+  });
+
+  ``
 
 app.use(express.json());
 app.use(cors());
@@ -155,9 +162,58 @@ app.post('/job_listing', (req, res) => {
         });
     });
   });
+
+
+
+  app.post('/archive/:id', (req, res) => {
+    const { id } = req.params;
+    const { is_active, order_index } = req.body;
+  
+
+    postgres('job_listing')
+      .where('id', '=', id)
+      .update({
+        is_active,
+        order_index
+      })
+      .returning('*')
+      .then(job => res.json(job[0]))
+      .catch(err => res.status(400).json("Unable to archive job listing"));
+  });
+  
+  app.post('/archive/:id', (req, res) => {
+    const { id } = req.params;
+    const { is_active, order_index } = req.body;
+  
+
+    postgres('job_listing')
+      .where('id', '=', id)
+      .update({
+        is_active,
+        order_index
+      })
+      .returning('*')
+      .then(job => res.json(job[0]))
+      .catch(err => res.status(400).json("Unable to archive job listing"));
+  });
+  
+ 
+
+app.post('/jobs/interested', (req, res) => {
+  const { user_id, job_id } = req.body;
+  console.log("intrested",user_id , job_id);
+  postgres('interested_jobs')
+    .insert({ user_id, job_id })
+    .returning('*')
+    .then(interest => res.json(interest))
+    .catch(err => res.status(400).json("Unable to save interest"));
+});
+
   
 app.listen(3001, ()=>{
     console.log("server is working ");
 }); 
+
+
 
 
