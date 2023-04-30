@@ -2,7 +2,8 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100),
     email VARCHAR(100) UNIQUE NOT NULL,
-    joined DATE DEFAULT CURRENT_DATE
+    joined DATE DEFAULT CURRENT_DATE,
+    is_admin BOOLEAN DEFAULT FALSE
 );
 CREATE TABLE login (
   id SERIAL PRIMARY KEY,
@@ -22,7 +23,9 @@ CREATE TABLE job_listing (
   posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   is_active BOOLEAN DEFAULT TRUE,
   contact_phone VARCHAR(20) NOT NULL,
-  contact_email VARCHAR(100) NOT NULL
+  contact_email VARCHAR(100) NOT NULL,
+  order_index INTEGER DEFAULT 0
+
 );
 
  

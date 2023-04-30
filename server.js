@@ -43,6 +43,40 @@ app.get('/',(req,res)=>{
     
 
 })
+app.get('/jobs/interested-users', (req, res) => {
+  postgres.select('job_listing.id', 'job_listing.job_title', 'job_listing.company_name')
+    .from('interested_jobs')
+    .join('job_listing', 'interested_jobs.job_id', '=', 'job_listing.id')
+    .distinct()
+    .then(jobIds => {
+      const promises = jobIds.map(job => {
+        const { id, job_title, company_name } = job;
+        return postgres.select('users.name', 'users.email')
+          .from('interested_jobs')
+          .join('users', 'interested_jobs.user_id', '=', 'users.id')
+          .where('job_id', '=', id)
+          .then(users => ({ id, job_title, company_name, users }));
+      });
+      Promise.all(promises).then(results => res.json(results));
+    })
+    .catch(err => res.status(400).json("Unable to get data"));
+});
+
+app.get('/jobs/interested-jobs/:userId', (req, res) => {
+  const { userId } = req.params;
+
+  postgres.select('job_listing.*')
+    .from('interested_jobs')
+    .join('job_listing', 'interested_jobs.job_id', '=', 'job_listing.id')
+    .where('interested_jobs.user_id', '=', userId)
+    .distinct()
+    .then(jobs => {
+      res.json(jobs);
+    })
+    .catch(err => res.status(400).json("Unable to get data"));
+});
+
+
 app.get('/job_listing', (req, res) => {
     postgres.select('*').from('job_listing').orderBy('order_index')
       .then(data => {
@@ -165,43 +199,33 @@ app.post('/job_listing', (req, res) => {
 
 
 
+ 
+  
   app.post('/archive/:id', (req, res) => {
     const { id } = req.params;
-    const { is_active, order_index } = req.body;
+    const { is_active} = req.body;
   
 
     postgres('job_listing')
       .where('id', '=', id)
       .update({
         is_active,
-        order_index
       })
       .returning('*')
       .then(job => res.json(job[0]))
       .catch(err => res.status(400).json("Unable to archive job listing"));
   });
-  
-  app.post('/archive/:id', (req, res) => {
-    const { id } = req.params;
-    const { is_active, order_index } = req.body;
-  
 
-    postgres('job_listing')
-      .where('id', '=', id)
-      .update({
-        is_active,
-        order_index
-      })
-      .returning('*')
-      .then(job => res.json(job[0]))
-      .catch(err => res.status(400).json("Unable to archive job listing"));
-  });
+ 
+
+
+
   
  
 
 app.post('/jobs/interested', (req, res) => {
   const { user_id, job_id } = req.body;
-  console.log("intrested",user_id , job_id);
+  // console.log("intrested",user_id , job_id);
   postgres('interested_jobs')
     .insert({ user_id, job_id })
     .returning('*')
@@ -209,10 +233,19 @@ app.post('/jobs/interested', (req, res) => {
     .catch(err => res.status(400).json("Unable to save interest"));
 });
 
-  
+app.delete('/jobs/interested', (req, res) => {
+  const { user_id, job_id } = req.body;
+  postgres('interested_jobs')
+    .where({ user_id, job_id })
+    .del()
+    .then(() => res.json(`User ${user_id} no longer interested in job ${job_id}`))
+    .catch(err => res.status(400).json("Unable to remove interest"));
+});
+
 app.listen(3001, ()=>{
     console.log("server is working ");
 }); 
+
 
 
 
