@@ -4,29 +4,18 @@ const bcrypt=require("bcrypt-nodejs");
 const cors = require('cors');
 const knex = require('knex'); 
 const { response } = require('express');
+// require('dotenv').config();
+
+const port = process.env.PORT;
 
 const postgres = knex({
-    client: 'pg',
-    connection: {
-        host : '127.0.0.1', //localhost
-        user : 'adonis', //add your user name for the database here
-        // port: 3001, // add your port number here
-        password : '', //add your correct password in here/ we dont have so keep it empty don't fill qrong one
-        database : 'smart-brain' //add your database name you created here
-    }
-  });
-
-  
-
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    next();
-  });
-
-  ``
-
+  client: 'pg',
+  connection: {
+    connectionString:  process.env.DB_URL,
+    ssl: { rejectUnauthorized: false }
+  }
+});
+ 
 app.use(express.json());
 app.use(cors());
  
@@ -242,11 +231,8 @@ app.delete('/jobs/interested', (req, res) => {
     .catch(err => res.status(400).json("Unable to remove interest"));
 });
 
-app.listen(3001, ()=>{
-    console.log("server is working ");
-}); 
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 
-
-
-
+});
 
