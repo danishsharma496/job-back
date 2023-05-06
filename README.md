@@ -1,7 +1,7 @@
 ### `POSTMAN COLLECTION`
 
  
-Open [https://web.postman.co/workspace/My-Workspace~1e8e3c93-982b-419e-820a-1425d3a27356/history/25812231-389d6735-4379-4d66-bb4a-8a09205add69](https://web.postman.co/workspace/My-Workspace~1e8e3c93-982b-419e-820a-1425d3a27356/history/25812231-389d6735-4379-4d66-bb4a-8a09205add69) to view it in your browser.
+Open [https://www.postman.com/spaceflight-observer-75281169/workspace/everyone/collection/25812231-c8af719c-b792-4e4b-89df-4f1e42dc02cc?action=share&creator=25812231] to view it in your browser.
 
  
 
